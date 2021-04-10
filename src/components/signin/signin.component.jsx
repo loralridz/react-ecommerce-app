@@ -4,10 +4,7 @@ import { FormInput } from "../form-component/form-input.component";
 import "./signin.styles.scss";
 import { signInWithGoogle } from "../../firebase/firebase.utils";
 
-export class SignIn extends Component<
-  {},
-  { email?: string, password?: string }
-> {
+export class SignIn extends Component {
   constructor(props) {
     super(props);
 

@@ -4,9 +4,9 @@ import { Switch, Route } from "react-router-dom";
 import ShopPage from "./pages/shop/shop.component";
 import { Header } from "./components/header/header.component";
 import { SignInAndSignUp } from "./pages/signin-signup/signin-signup.component";
-import { auth } from "./firebase/firebase.utils";
+import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 import React from "react";
-class App extends React.Component<{},{currentUser:any}> {
+class App extends React.Component<{}, { currentUser: any }> {
   constructor(props) {
     super(props);
 
@@ -16,9 +16,33 @@ class App extends React.Component<{},{currentUser:any}> {
   }
   unsubscribeFromAuth = null;
   componentDidMount() {
-    this.unsubscribeFromAuth = auth.onAuthStateChanged((user) => {
-      this.setState({ currentUser: user });
-      console.log(user);
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
+      // this.setState({ currentUser: user });
+      // if user is signing in
+      if (userAuth) {
+        // get user ref
+        const userRef = await createUserProfileDocument(userAuth);
+        // subscribe(listen) to set state
+        userRef.onSnapshot((snapShot) => {
+          this.setState(
+            {
+              currentUser: {
+                id: snapShot.id,
+                ...snapShot.data()
+              }
+            },
+            () => {
+              // to get state(which is async-not fully populated) pass function as 2nd param n print
+              console.log(this.state);
+            }
+          );
+        });
+      }
+      // if user logs out set user to null
+      else {
+        this.setState({ currentUser: userAuth });
+      }
+      console.log(userAuth);
     });
   }
   componentWillUnmount() {
