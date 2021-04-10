@@ -33,7 +33,7 @@ class App extends React.Component<{}, { currentUser: any }> {
             },
             () => {
               // to get state(which is async-not fully populated) pass function as 2nd param n print
-              console.log(this.state);
+              // console.log(this.state);
             }
           );
         });
@@ -42,7 +42,7 @@ class App extends React.Component<{}, { currentUser: any }> {
       else {
         this.setState({ currentUser: userAuth });
       }
-      console.log(userAuth);
+      console.log("user", userAuth);
     });
   }
   componentWillUnmount() {
