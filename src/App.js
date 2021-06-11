@@ -1,6 +1,6 @@
 import "./App.css";
 import { Homepage } from "./pages/homepage/homepage.component";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import ShopPage from "./pages/shop/shop.component";
 import Header from "./components/header/header.component";
 import { SignInAndSignUp } from "./pages/signin-signup/signin-signup.component";
@@ -14,11 +14,13 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      currentUser: null
+      loading: false
     };
   }
   unsubscribeFromAuth = null;
   componentDidMount() {
+    const { setCurrentUser } = this.props;
+
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       // this.setState({ currentUser: user });
       // if user is signing in
@@ -27,23 +29,16 @@ class App extends React.Component {
         const userRef = await createUserProfileDocument(userAuth);
         // subscribe(listen) to set state
         userRef.onSnapshot((snapShot) => {
-          this.setState(
-            {
-              currentUser: {
-                id: snapShot.id,
-                ...snapShot.data()
-              }
-            },
-            () => {
-              // to get state(which is async-not fully populated) pass function as 2nd param n print
-              // console.log(this.state);
-            }
-          );
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data()
+          });
         });
+        this.setState({ ...this.state, loading: true })
       }
       // if user logs out set user to null
       else {
-        this.setState({ currentUser: userAuth });
+        setCurrentUser(userAuth)
       }
       console.log("user", userAuth);
     });
@@ -58,13 +53,21 @@ class App extends React.Component {
         <Switch>
           <Route exact path="/" component={Homepage} />
           <Route path="/shop" component={ShopPage} />
-          <Route path="/signin" component={SignInAndSignUp} />
+          <Route exact path="/signin"
+          >
+            {() => this.state.loading ?
+              (<SignInAndSignUp />) : (<Redirect to="/" />)}
+          </Route>
+          {/* {this.props.currentUser ? <Redirect to="/" /> : <></>} */}
         </Switch>
-      </div>
+      </div >
     );
   }
 }
-const mapDispatchToProps = (dispatch) => {
-  setCurrentUser: user => dispatch(setCurrentUser(user))
-}
-export default connec(null, mapDispatchToProps)(App);
+const mapStateToProps = (user) => ({
+  currentUser: user.currentUser
+})
+const mapDispatchToProps = (dispatch) => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user)),
+})
+export default connect(mapStateToProps, mapDispatchToProps)(App);
