@@ -1,12 +1,13 @@
 import { createSelector } from 'reselect';
 
 // input selector -> state
-const selectCart = state => state.cart;
+const selectCart  = state => state.cart;
 
+// output selectors
 export const selectCartItems = createSelector(
     [selectCart],
     cart => cart.cartItems
-)
+);
 
 export const selectCartItemsCount = createSelector(
     [selectCartItems],
@@ -14,8 +15,13 @@ export const selectCartItemsCount = createSelector(
     cartItems =>
         cartItems.reduce(
             (accumalatedQuantity, cartItem) =>
-                accumalatedQuantity * cartItem.quantity
+                accumalatedQuantity + cartItem.quantity
             , 0)
 )
+
+export const selectCartHidden = createSelector(
+    [selectCart],
+    cart => cart.hidden
+);
 
 // whatever comp uses the state whenever the state changes thats unrelated it does not need to rerender,

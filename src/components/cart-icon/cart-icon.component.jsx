@@ -4,6 +4,7 @@ import toggleCartHidden from '../../redux/cart/cart.actions';
 import "./cart-icon.styles.scss";
 import { connect } from "react-redux"
 import { selectCartItemsCount } from '../../redux/cart/cart.selectors';
+import { createStructuredSelector } from 'reselect';
 
 const CartIcon = ({ toggleCartHidden, itemCount }) => {
     return (
@@ -15,7 +16,11 @@ const CartIcon = ({ toggleCartHidden, itemCount }) => {
 }
 const mapStateToProps = (state) => ({
     // selector
-    itemCount: selectCartItemsCount(state) 
+    /* itemCount being primitive redux shallow
+      checks btw state changes in mapState where
+      redux check if value is same as before and 
+      saves rerender */
+    itemCount: selectCartItemsCount(state)
 })
 const mapDispatchToProps = (dispatch) => ({
     toggleCartHidden: () => dispatch(toggleCartHidden())
